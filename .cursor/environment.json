@@ -1,0 +1,17 @@
+{
+  "name": "Drilling Engineering Toolkit",
+  "install": "python3 -m venv .venv 2>/dev/null || { sudo apt-get install -y python3-venv || sudo apt-get update && sudo apt-get install -y python3-venv; python3 -m venv .venv; } && ./.venv/bin/python -m pip install --upgrade pip && ./.venv/bin/pip install -r requirements.txt",
+  "terminals": [
+    {
+      "name": "api-server",
+      "command": "./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+      "description": "FastAPI dev server for the Drilling Engineering Toolkit (http://localhost:8000)."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 8000
+    }
+  ]
+}
