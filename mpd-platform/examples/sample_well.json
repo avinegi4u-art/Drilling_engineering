@@ -1,0 +1,71 @@
+{
+  "well": {
+    "name": "Example Vertical Well A",
+    "kelly_bushing_elevation_m": 0.0,
+    "water_depth_m": 0.0,
+    "trajectory": [
+      { "md_m": 0.0, "tvd_m": 0.0, "inclination_deg": 0.0 },
+      { "md_m": 3000.0, "tvd_m": 3000.0, "inclination_deg": 0.0 }
+    ],
+    "sections": [
+      {
+        "name": "8.5 in open hole",
+        "top_md_m": 0.0,
+        "bottom_md_m": 3000.0,
+        "top_tvd_m": 0.0,
+        "bottom_tvd_m": 3000.0,
+        "hole_id_m": 0.2159,
+        "casing_id_m": null,
+        "annular_section_type": "open_hole"
+      }
+    ]
+  },
+  "drillstring": {
+    "segments": [
+      {
+        "component_type": "drillpipe",
+        "length_m": 2800.0,
+        "outer_diameter_m": 0.127,
+        "inner_diameter_m": 0.1086,
+        "description": "5 in drillpipe"
+      },
+      {
+        "component_type": "bha",
+        "length_m": 200.0,
+        "outer_diameter_m": 0.1651,
+        "inner_diameter_m": 0.0714,
+        "description": "6.5 in BHA"
+      }
+    ]
+  },
+  "fluid": {
+    "mud_density_kg_m3": 1200.0,
+    "plastic_viscosity_pa_s": 0.02,
+    "yield_stress_pa": 4.788,
+    "temperature_c": 50.0,
+    "rheology_model": "bingham_plastic"
+  },
+  "operating": {
+    "flow_rate_m3_s": 0.02,
+    "surface_backpressure_pa": 1500000.0,
+    "operating_mode": "drilling",
+    "max_surface_backpressure_pa": 5000000.0
+  },
+  "pressure_window": {
+    "points": [
+      {
+        "tvd_m": 0.0,
+        "pore_pressure_pa": 0.0,
+        "collapse_pressure_pa": 0.0,
+        "fracture_pressure_pa": 101325.0
+      },
+      {
+        "tvd_m": 3000.0,
+        "pore_pressure_pa": 33000000.0,
+        "collapse_pressure_pa": 34000000.0,
+        "fracture_pressure_pa": 51000000.0
+      }
+    ]
+  },
+  "notes": "Synthetic example well for development and tests. Not field data."
+}

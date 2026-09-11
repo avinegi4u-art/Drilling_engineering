@@ -1,0 +1,4 @@
+# Docker Compose. PostgreSQL, API, and dashboard services are added in Phase 6.
+# This file is a placeholder so the project layout matches the target structure.
+
+services: {}
