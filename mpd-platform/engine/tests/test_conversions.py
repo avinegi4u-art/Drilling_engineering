@@ -24,11 +24,11 @@ from mpd_engine.units.conversions import (
     kg_m3_to_ppg,
     kpa_to_pa,
     lpm_to_m3_s,
+    m3_s_to_bbl_min,
+    m3_s_to_lpm,
     m_to_ft,
     m_to_inch,
     m_to_mm,
-    m3_s_to_bbl_min,
-    m3_s_to_lpm,
     mm_to_m,
     pa_s_to_cp,
     pa_to_bar,
@@ -64,9 +64,15 @@ def test_flow_bbl_min_hand_calculated() -> None:
 
 
 def test_length_ft_is_exact_international_foot() -> None:
-    """3000 ft * 0.3048 m/ft = 914.4 m (exact)."""
-    assert ft_to_m(3000.0) == pytest.approx(914.4, rel=0, abs=0.0)
+    """The international foot is defined as exactly 0.3048 m.
+
+    3000 * 0.3048 is 914.4 m; binary floating point may not represent
+    that product bit-exactly, so the value is checked with a tight
+    absolute tolerance.
+    """
     assert FT_TO_M == 0.3048
+    assert ft_to_m(1.0) == pytest.approx(0.3048, rel=0, abs=0.0)
+    assert ft_to_m(3000.0) == pytest.approx(914.4, rel=0, abs=1e-12)
 
 
 def test_mm_and_inch_pipe_sizes() -> None:

@@ -49,7 +49,9 @@ class TrajectoryStation(BaseModel):
     @model_validator(mode="after")
     def check_station(self) -> TrajectoryStation:
         if self.md_m > MAX_WELL_DEPTH_M:
-            raise ValueError(f"md_m ({self.md_m}) exceeds the version-1 limit of {MAX_WELL_DEPTH_M} m")
+            raise ValueError(
+                f"md_m ({self.md_m}) exceeds the version-1 limit of {MAX_WELL_DEPTH_M} m"
+            )
         if self.tvd_m > MAX_WELL_DEPTH_M:
             raise ValueError(
                 f"tvd_m ({self.tvd_m}) exceeds the version-1 limit of {MAX_WELL_DEPTH_M} m"

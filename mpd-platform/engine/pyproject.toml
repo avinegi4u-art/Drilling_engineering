@@ -44,6 +44,9 @@ src = ["mpd_engine", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["mpd_engine"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true

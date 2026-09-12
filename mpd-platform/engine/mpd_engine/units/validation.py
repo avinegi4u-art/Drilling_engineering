@@ -126,7 +126,12 @@ def validate_monotonically_increasing(
         previous = current
 
 
-def validate_tvd_not_greater_than_md(md_m: float, tvd_m: float, *, index: int | None = None) -> None:
+def validate_tvd_not_greater_than_md(
+    md_m: float,
+    tvd_m: float,
+    *,
+    index: int | None = None,
+) -> None:
     """Require TVD <= MD, which holds for vertical and conventionally surveyed wells.
 
     A 1 mm tolerance absorbs floating-point noise from unit conversions.
