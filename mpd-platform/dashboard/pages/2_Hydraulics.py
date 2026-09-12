@@ -6,16 +6,17 @@ import pandas as pd
 import streamlit as st
 from mpd_engine.units.conversions import kpa_to_pa, m3_s_to_lpm, pa_to_kpa
 
-from components.api_client import APIError, MPDClient
+from components.api_client import APIError
 from components.charts import ecd_figure, friction_profile_figure, pressure_profile_figure
 from components.forms import drillstring_form, fluid_form, operating_form, pressure_window_form
-from components.tables import show_profile, show_warnings
+from components.tables import show_assumptions, show_profile, show_warnings
+from components.ui import bootstrap_ui, fetch_selected_results
 
 st.set_page_config(page_title="Hydraulics", layout="wide")
 st.title("Hydraulics")
 st.caption("Calculations run through FastAPI and `mpd_engine`. Equations are not in this page.")
 
-client = MPDClient(st.session_state.get("api_base_url"))
+client = bootstrap_ui()
 
 try:
     wells = client.list_wells()
@@ -28,11 +29,16 @@ if not wells:
     st.stop()
 
 labels = {f"{item['name']} ({item['id'][:8]})": item["id"] for item in wells}
-well_label = st.selectbox("Well", list(labels))
+keys = list(labels)
+default_index = 0
+current = st.session_state.get("well_id")
+if current in labels.values():
+    default_index = keys.index(next(key for key, value in labels.items() if value == current))
+well_label = st.selectbox("Well", keys, index=default_index)
 well_id = labels[well_label]
+st.session_state.well_id = well_id
 well = client.get_well(well_id)
 td_m = float(well["well"]["sections"][-1]["md_bottom_m"])
-st.session_state.well_id = well_id
 
 col_left, col_right = st.columns(2)
 with col_left:
@@ -60,19 +66,20 @@ if st.button("Run calculation", type="primary"):
     try:
         scenario = client.create_scenario(well_id, payload)
         run = client.calculate(scenario["id"])
-        results = client.get_results(run["id"])
     except APIError as exc:
         st.error(str(exc))
     else:
         st.session_state.scenario_id = scenario["id"]
         st.session_state.run_id = run["id"]
-        st.session_state.results = results
         st.success(f"Run {run['id']} completed ({run['calculation_version']})")
+        st.rerun()
 
-results = st.session_state.get("results")
+results = fetch_selected_results(client)
 if not results:
     st.info("Run a calculation to see metrics and charts.")
     st.stop()
+
+show_assumptions(results.get("assumptions"))
 
 summary = results["summary"]
 m1, m2, m3, m4, m5 = st.columns(5)
@@ -102,12 +109,18 @@ show_profile(profile)
 
 run_id = st.session_state.get("run_id")
 if run_id:
-    d1, d2 = st.columns(2)
-    with d1:
-        st.download_button("Download CSV", data=client.export_csv(run_id), file_name=f"{run_id}.csv")
-    with d2:
-        st.download_button(
-            "Download Excel",
-            data=client.export_excel(run_id),
-            file_name=f"{run_id}.xlsx",
-        )
+    try:
+        csv_bytes = client.export_csv(run_id)
+        xlsx_bytes = client.export_excel(run_id)
+    except APIError as exc:
+        st.error(str(exc))
+    else:
+        d1, d2 = st.columns(2)
+        with d1:
+            st.download_button("Download CSV", data=csv_bytes, file_name=f"{run_id}.csv")
+        with d2:
+            st.download_button(
+                "Download Excel",
+                data=xlsx_bytes,
+                file_name=f"{run_id}.xlsx",
+            )

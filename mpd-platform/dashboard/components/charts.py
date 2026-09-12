@@ -80,6 +80,30 @@ def ecd_figure(profile: list[dict[str, Any]]) -> go.Figure:
     return fig
 
 
+def connection_comparison_figure(connection: dict[str, Any]) -> go.Figure:
+    """Bar comparison of API connection fields. No hydraulics are recomputed here."""
+    labels = [
+        "Pump-on BHP",
+        "Pump-off BHP (same SBP)",
+        "Required SBP, pump-off",
+        "Pump-on SBP",
+    ]
+    values = [
+        pa_to_kpa(connection["pump_on_bhp_pa"]),
+        pa_to_kpa(connection["pump_off_sbp_same_as_pump_on_bhp_pa"]),
+        pa_to_kpa(connection["required_sbp_pump_off_pa"]),
+        pa_to_kpa(connection["pump_on_sbp_pa"]),
+    ]
+    fig = go.Figure(go.Bar(x=values, y=labels, orientation="h", name="kPa"))
+    fig.update_layout(
+        title="Connection comparison (steady-state, from API)",
+        xaxis_title="Pressure, kPa",
+        yaxis={"autorange": "reversed"},
+        template="plotly_white",
+    )
+    return fig
+
+
 def pressure_window_figure(profile: list[dict[str, Any]]) -> go.Figure:
     tvd = [row["tvd_m"] for row in profile]
     fig = go.Figure()

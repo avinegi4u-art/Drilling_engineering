@@ -8,7 +8,8 @@ from __future__ import annotations
 import streamlit as st
 from mpd_engine.constants import VERSION_1_ASSUMPTIONS
 
-from components.api_client import APIError, MPDClient, DEFAULT_API_BASE_URL
+from components.api_client import APIError
+from components.ui import bootstrap_ui
 
 st.set_page_config(
     page_title="MPD Hydraulics Dashboard",
@@ -16,8 +17,7 @@ st.set_page_config(
     layout="wide",
 )
 
-if "api_base_url" not in st.session_state:
-    st.session_state.api_base_url = DEFAULT_API_BASE_URL
+client = bootstrap_ui()
 
 st.title("MPD Hydraulics Dashboard")
 st.caption(
@@ -25,7 +25,6 @@ st.caption(
     "Not an automated choke controller."
 )
 
-client = MPDClient(st.session_state.api_base_url)
 try:
     health = client.health()
     st.success(f"API {st.session_state.api_base_url} — {health.get('status', 'ok')}")
@@ -47,6 +46,7 @@ st.markdown(
 5. **Reports** — download CSV, Excel, and PDF for a completed run.
 
 Use the sidebar to open those pages. All calculations execute in the FastAPI
-service, which calls the standalone `mpd_engine` package.
+service, which calls the standalone `mpd_engine` package. This UI only
+converts display units and does not re-implement hydraulics.
 """
 )

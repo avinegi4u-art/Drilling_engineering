@@ -9,6 +9,18 @@ import streamlit as st
 from mpd_engine.units.conversions import pa_to_kpa
 
 
+def show_assumptions(assumptions: list[str] | None) -> None:
+    """Show version-1 engineering assumptions from the API result payload."""
+    items = assumptions or []
+    with st.expander("Calculation assumptions", expanded=True):
+        if not items:
+            st.info("No assumptions were returned for this run.")
+            return
+        for item in items:
+            st.markdown(f"- {item}")
+        st.caption("These assumptions come from the calculation engine via the API.")
+
+
 def show_warnings(warnings: list[dict[str, Any]]) -> None:
     if not warnings:
         st.success("No calculation warnings.")

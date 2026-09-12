@@ -1,7 +1,7 @@
 """HTTP client for the FastAPI backend.
 
 All hydraulics run on the server via ``mpd_engine``. This module only
-transports JSON and files.
+transports JSON and files. It does not implement engineering equations.
 """
 
 from __future__ import annotations
@@ -12,16 +12,37 @@ from typing import Any
 import httpx
 
 DEFAULT_API_BASE_URL = os.environ.get("API_BASE_URL", "http://127.0.0.1:8000")
+DEFAULT_API_TIMEOUT_S = float(os.environ.get("API_TIMEOUT_S", "60"))
 
 
 class APIError(RuntimeError):
-    """Raised when the API returns a non-success status."""
+    """Raised when the API is unreachable or returns a non-success status."""
+
+
+def format_api_error(status_code: int, path: str, payload: Any) -> str:
+    """Turn a structured FastAPI error envelope into a readable message."""
+    if isinstance(payload, dict):
+        err = payload.get("error")
+        if isinstance(err, dict):
+            code = str(err.get("code") or "HTTP_ERROR")
+            message = err.get("message", "")
+            if isinstance(message, list):
+                parts = []
+                for item in message:
+                    if isinstance(item, dict):
+                        loc = ".".join(str(part) for part in item.get("loc", ()))
+                        parts.append(f"{loc}: {item.get('msg', item)}" if loc else str(item.get("msg", item)))
+                    else:
+                        parts.append(str(item))
+                message = "; ".join(parts)
+            return f"{code}: {message}"
+    return f"API {status_code} for {path}: {payload}"
 
 
 class MPDClient:
     """Small synchronous client used by Streamlit pages."""
 
-    def __init__(self, base_url: str | None = None, timeout_s: float = 60.0) -> None:
+    def __init__(self, base_url: str | None = None, timeout_s: float = DEFAULT_API_TIMEOUT_S) -> None:
         self.base_url = (base_url or DEFAULT_API_BASE_URL).rstrip("/")
         self.timeout_s = timeout_s
 
@@ -29,6 +50,11 @@ class MPDClient:
         url = f"{self.base_url}{path}"
         try:
             response = httpx.request(method, url, timeout=self.timeout_s, **kwargs)
+        except httpx.TimeoutException as exc:
+            raise APIError(
+                f"API timed out after {self.timeout_s:.0f}s at {url}. "
+                "Check that the FastAPI service is running."
+            ) from exc
         except httpx.HTTPError as exc:
             raise APIError(f"Cannot reach API at {url}: {exc}") from exc
         if response.status_code >= 400:
@@ -36,7 +62,7 @@ class MPDClient:
                 payload = response.json()
             except ValueError:
                 payload = response.text
-            raise APIError(f"API {response.status_code} for {path}: {payload}")
+            raise APIError(format_api_error(response.status_code, path, payload))
         if response.headers.get("content-type", "").startswith("application/json"):
             return response.json()
         return response.content
