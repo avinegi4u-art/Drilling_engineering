@@ -1,1 +1,1 @@
-"""Database package. Implemented in Phase 4."""
+"""Database package."""

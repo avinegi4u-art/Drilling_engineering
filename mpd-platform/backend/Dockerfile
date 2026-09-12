@@ -1,9 +1,12 @@
-# FastAPI image. Implemented in Phase 4.
 FROM python:3.12-slim
 
-WORKDIR /app
-COPY engine /engine
-COPY backend /app
-RUN pip install --no-cache-dir -e /engine -e /app
+WORKDIR /opt
+COPY engine /opt/engine
+COPY backend /opt/backend
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -e /opt/engine -e /opt/backend
 
-CMD ["python", "-c", "print('Backend image placeholder — FastAPI is implemented in Phase 4')"]
+WORKDIR /opt/backend
+ENV PYTHONUNBUFFERED=1
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

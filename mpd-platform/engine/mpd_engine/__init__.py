@@ -12,6 +12,17 @@ This engine is for engineering decision support only. It does not
 implement automatic choke control or send commands to field equipment.
 """
 
+from mpd_engine.constants import CALCULATION_VERSION, VERSION_1_ASSUMPTIONS
+from mpd_engine.hydraulics import (
+    calculate_annular_area,
+    calculate_annular_velocity,
+    calculate_bingham_annular_pressure_loss,
+    calculate_bottomhole_pressure,
+    calculate_ecd_kg_m3,
+    calculate_hydraulic_diameter,
+    calculate_hydrostatic_pressure,
+    calculate_required_surface_backpressure,
+)
 from mpd_engine.models import (
     AnnularSectionType,
     Drillstring,
@@ -28,6 +39,14 @@ from mpd_engine.models import (
     WellSection,
     calculate_tvd_vertical,
 )
+from mpd_engine.mpd import (
+    ConnectionComparison,
+    PressureWindowStatus,
+    compare_connection,
+)
+from mpd_engine.results.result_models import CalculationResult
+from mpd_engine.results.warnings import EngineeringWarning
+from mpd_engine.services import HydraulicsCase, run_hydraulics
 from mpd_engine.units.conversions import (
     bar_to_pa,
     bbl_min_to_m3_s,
@@ -51,36 +70,24 @@ from mpd_engine.units.conversions import (
 )
 
 __version__ = "0.1.0"
-CALCULATION_VERSION = "0.1.0-steady-state-single-phase-bingham"
-
-VERSION_1_ASSUMPTIONS: tuple[str, ...] = (
-    "Steady-state, single-phase hydraulics model.",
-    "SI units internally (m, Pa, kg/m³, m³/s).",
-    "Vertical well in version 1; TVD equals MD.",
-    "One well section with constant annular diameter.",
-    "Constant mud density; no compressibility or cuttings loading.",
-    "Bingham Plastic rheology.",
-    "Incompressible single-phase drilling fluid.",
-    "No temperature correction of density or rheology.",
-    "No gas influx.",
-    "No surge and swab.",
-    "No transient or multiphase model.",
-    "No automated choke or equipment control.",
-    "Engineering decision support only.",
-)
 
 __all__ = [
     "CALCULATION_VERSION",
     "VERSION_1_ASSUMPTIONS",
     "AnnularSectionType",
+    "CalculationResult",
+    "ConnectionComparison",
     "Drillstring",
     "DrillstringComponent",
     "DrillstringComponentType",
+    "EngineeringWarning",
     "FluidProperties",
+    "HydraulicsCase",
     "OperatingConditions",
     "OperatingMode",
     "PressureWindow",
     "PressureWindowPoint",
+    "PressureWindowStatus",
     "RheologyModel",
     "TrajectoryStation",
     "Well",
@@ -88,7 +95,16 @@ __all__ = [
     "__version__",
     "bar_to_pa",
     "bbl_min_to_m3_s",
+    "calculate_annular_area",
+    "calculate_annular_velocity",
+    "calculate_bingham_annular_pressure_loss",
+    "calculate_bottomhole_pressure",
+    "calculate_ecd_kg_m3",
+    "calculate_hydraulic_diameter",
+    "calculate_hydrostatic_pressure",
+    "calculate_required_surface_backpressure",
     "calculate_tvd_vertical",
+    "compare_connection",
     "cp_to_pa_s",
     "ft_to_m",
     "inch_to_m",
@@ -106,4 +122,5 @@ __all__ = [
     "pa_to_psi",
     "ppg_to_kg_m3",
     "psi_to_pa",
+    "run_hydraulics",
 ]

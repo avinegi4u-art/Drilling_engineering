@@ -1,9 +1,13 @@
-# Streamlit image. Implemented in Phase 5.
 FROM python:3.12-slim
 
-WORKDIR /app
-COPY dashboard/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
-COPY dashboard /app
+WORKDIR /opt
+COPY engine /opt/engine
+COPY dashboard /opt/dashboard
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -e /opt/engine \
+    && pip install --no-cache-dir -r /opt/dashboard/requirements.txt
 
-CMD ["python", "-c", "print('Dashboard image placeholder — Streamlit is implemented in Phase 5')"]
+WORKDIR /opt/dashboard
+ENV PYTHONUNBUFFERED=1
+EXPOSE 8501
+CMD ["streamlit", "run", "app.py", "--server.address", "0.0.0.0", "--server.port", "8501"]

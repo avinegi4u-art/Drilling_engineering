@@ -10,8 +10,7 @@ background jobs.
 
 Steady-state, single-phase, Bingham Plastic hydraulics in SI units.
 
-Hydraulics functions are implemented in a later phase. Phase 1 provides:
+Public entry point: `mpd_engine.services.run_hydraulics`.
 
-- Validated domain models
-- Unit conversions
-- Input validation helpers
+Annular friction uses a narrow-slot Bingham approximation and is marked as an
+engineering screening correlation, not a validated field model.

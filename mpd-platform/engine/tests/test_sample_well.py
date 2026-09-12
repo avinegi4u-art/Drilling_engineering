@@ -38,4 +38,4 @@ def test_sample_well_json_loads_into_domain_models() -> None:
     assert drillstring.total_length_m == 3000.0
     assert fluid.mud_density_kg_m3 == 1200.0
     assert drilling.operating_mode is OperatingMode.DRILLING
-    assert len(window.points) == 2
+    assert len(window.points) == 3

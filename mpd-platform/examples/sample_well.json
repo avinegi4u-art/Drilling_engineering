@@ -43,6 +43,12 @@
   },
   "pressure_window": [
     {
+      "tvd_m": 100.0,
+      "pore_pressure_pa": 1200000.0,
+      "collapse_pressure_pa": 1300000.0,
+      "fracture_pressure_pa": 1800000.0
+    },
+    {
       "tvd_m": 1000.0,
       "pore_pressure_pa": 12000000.0,
       "collapse_pressure_pa": 13000000.0,

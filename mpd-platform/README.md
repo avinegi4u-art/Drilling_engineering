@@ -6,75 +6,47 @@ engineering decision support.
 This application **does not** implement automatic choke control and **does
 not** send commands to field equipment.
 
-## Current status: Phase 1
-
-Phase 1 provides the project skeleton and a standalone calculation-engine
-foundation:
-
-- Validated SI domain models (well, drillstring, fluid, pressure window,
-  operating conditions)
-- Unit conversions (psi, kPa, bar, ppg, kg/m³, L/min, bbl/min, ft, m, mm,
-  inch, cP)
-- Input validation (NaN/Inf, geometry, depth monotonicity, TVD ≤ MD,
-  pressure-window ordering)
-- Engine unit tests
-
-Hydraulics equations, FastAPI persistence, Streamlit pages, and exports
-are implemented in later phases. Placeholder modules exist so the folder
-layout is stable.
-
 ## Architecture
 
 The calculation engine (`engine/mpd_engine`) is independent of FastAPI and
-Streamlit. It can be imported from:
+Streamlit. Engineering equations are not duplicated in API routes or
+dashboard pages.
 
-- Python scripts
-- Jupyter notebooks
-- FastAPI endpoints (later)
-- Streamlit pages (later)
-- Future background jobs
+```text
+dashboard (Streamlit)  -->  backend (FastAPI)  -->  mpd_engine
+                                     |
+                                     v
+                               PostgreSQL
+```
 
-Engineering equations must not be placed in Streamlit pages or API route
-files.
-
-Internal units are SI:
-
-| Quantity | Internal unit |
-| --- | --- |
-| Length | m |
-| Pressure | Pa |
-| Density | kg/m³ |
-| Flow | m³/s |
-| Viscosity | Pa·s |
-
-Convert at the application boundary. Never mix units inside an engineering
-calculation.
+Internal units are SI (`m`, `Pa`, `kg/m³`, `m³/s`). Convert at the UI/API
+boundary.
 
 ## Version 1 engineering assumptions
 
 - Steady-state, single-phase hydraulics
 - Vertical well (TVD = MD)
-- One well section
+- One well section with constant annular diameter
 - Constant mud density
 - Bingham Plastic rheology
 - Incompressible single-phase drilling fluid
-- No temperature effects
-- No gas influx
-- No cuttings-loading correction
-- No surge and swab
-- No transient multiphase model
+- No temperature correction, gas influx, cuttings loading, surge/swab, or transients
 - No automated control
 
-These assumptions will be attached to stored calculation results in a later
-phase.
+Annular friction uses a **narrow-slot Bingham Plastic approximation**. That
+correlation is an engineering screening model and is marked for independent
+validation. Version 1 does not switch to a turbulent Blasius model
+automatically, because dropping the yield-stress term at Re = 2100 would
+create a non-physical friction decrease. A warning is issued when the
+plastic-viscosity Reynolds number exceeds 2100.
 
 ## Repository layout
 
 ```text
 mpd-platform/
-├── backend/          FastAPI service (Phase 4)
-├── engine/           Standalone hydraulics engine (Phase 1 in progress)
-├── dashboard/        Streamlit UI (Phase 5)
+├── backend/          FastAPI + SQLAlchemy + Alembic
+├── engine/           Standalone hydraulics engine
+├── dashboard/        Streamlit UI
 ├── examples/         Invented sample data only
 ├── docker-compose.yml
 ├── Makefile
@@ -90,19 +62,54 @@ cd mpd-platform
 python3 -m venv .venv
 source .venv/bin/activate
 make install-engine
+make install-backend
 make test-engine
+make test-backend
 make lint-engine
 make typecheck-engine
 ```
 
-Copy `.env.example` to `.env` before using Docker Compose. Do not put
-secrets in source files.
+Run the API and dashboard locally (SQLite by default):
+
+```bash
+make api
+# in another shell
+make dashboard
+```
+
+Open http://localhost:8501 and http://localhost:8000/docs.
+
+Copy `.env.example` to `.env` before using Docker Compose. Do not put secrets
+in source files.
+
+```bash
+docker compose up --build
+```
 
 Sample well data lives in `examples/sample_well.json`. It is invented
 development data, not field measurements.
 
+## API
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/health` | Liveness |
+| POST | `/api/v1/wells` | Create well |
+| GET | `/api/v1/wells` | List wells |
+| GET | `/api/v1/wells/{well_id}` | Get well |
+| POST | `/api/v1/wells/{well_id}/scenarios` | Create scenario |
+| GET | `/api/v1/scenarios/{scenario_id}` | Get scenario |
+| POST | `/api/v1/scenarios/{scenario_id}/calculate` | Run hydraulics |
+| GET | `/api/v1/runs/{run_id}` | Run metadata |
+| GET | `/api/v1/runs/{run_id}/results` | Results |
+| POST | `/api/v1/runs/{run_id}/export/csv` | CSV |
+| POST | `/api/v1/runs/{run_id}/export/excel` | Excel |
+| POST | `/api/v1/runs/{run_id}/export/pdf` | PDF |
+
+Version 1 has no authentication and no background job queue.
+
 ## Safety
 
 Failed validation raises errors. The engine does not substitute default
-values for invalid inputs. Warnings added in later phases are engineering
-review notices, not operational commands.
+values for invalid inputs. Warnings are engineering review notices, not
+operational commands.

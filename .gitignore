@@ -36,4 +36,5 @@ env/
 backend/exports/
 *.xlsx
 *.pdf
+*.db
 !examples/**
