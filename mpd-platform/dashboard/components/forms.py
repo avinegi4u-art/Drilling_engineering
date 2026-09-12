@@ -107,10 +107,10 @@ def pressure_window_form(uploaded: pd.DataFrame | None) -> dict[str, Any]:
         return {"points": points}
     col_a, col_b = st.columns(2)
     with col_a:
-        tvd_1 = st.number_input("Point 1 TVD, m", min_value=0.1, value=100.0)
-        pore_1 = st.number_input("Point 1 pore, kPa", min_value=0.1, value=1200.0)
-        coll_1 = st.number_input("Point 1 collapse, kPa", min_value=0.1, value=1300.0)
-        frac_1 = st.number_input("Point 1 fracture, kPa", min_value=0.1, value=1800.0)
+        tvd_1 = st.number_input("Point 1 TVD, m", min_value=0.1, value=50.0)
+        pore_1 = st.number_input("Point 1 pore, kPa", min_value=0.1, value=600.0)
+        coll_1 = st.number_input("Point 1 collapse, kPa", min_value=0.1, value=650.0)
+        frac_1 = st.number_input("Point 1 fracture, kPa", min_value=0.1, value=900.0)
     with col_b:
         tvd_2 = st.number_input("Point 2 TVD, m", min_value=0.1, value=3000.0)
         pore_2 = st.number_input("Point 2 pore, kPa", min_value=0.1, value=36000.0)
