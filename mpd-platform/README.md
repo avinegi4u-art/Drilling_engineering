@@ -69,9 +69,12 @@ make lint-engine
 make typecheck-engine
 ```
 
-Run the API and dashboard locally (SQLite by default):
+Run the API and dashboard locally. Tests use in-memory SQLite.
+Runtime PostgreSQL is configured with `DATABASE_URL` or `POSTGRES_*`
+(see `.env.example`). For a local SQLite API process:
 
 ```bash
+export DATABASE_URL=sqlite:///./mpd.db
 make api
 # in another shell
 make dashboard
@@ -98,8 +101,10 @@ development data, not field measurements.
 | GET | `/api/v1/wells` | List wells |
 | GET | `/api/v1/wells/{well_id}` | Get well |
 | POST | `/api/v1/wells/{well_id}/scenarios` | Create scenario |
+| GET | `/api/v1/wells/{well_id}/scenarios` | List scenarios for a well |
 | GET | `/api/v1/scenarios/{scenario_id}` | Get scenario |
-| POST | `/api/v1/scenarios/{scenario_id}/calculate` | Run hydraulics |
+| POST | `/api/v1/scenarios/{scenario_id}/calculate` | Run hydraulics (synchronous) |
+| GET | `/api/v1/runs` | List calculation runs |
 | GET | `/api/v1/runs/{run_id}` | Run metadata |
 | GET | `/api/v1/runs/{run_id}/results` | Results |
 | POST | `/api/v1/runs/{run_id}/export/csv` | CSV |

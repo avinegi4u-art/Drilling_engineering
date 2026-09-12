@@ -1,4 +1,8 @@
-"""Scenario request and response schemas."""
+"""Scenario request and response schemas.
+
+Domain types come from ``mpd_engine``. This module does not re-declare
+rheology or geometry equations.
+"""
 
 from __future__ import annotations
 
@@ -15,13 +19,16 @@ class ScenarioCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str = Field(min_length=1, examples=["drilling-400-lpm"])
-    created_by: str = Field(default="engineer")
+    created_by: str = Field(default="engineer", description="Audit label. Version 1 has no auth.")
     drillstring: Drillstring
     fluid: FluidProperties
     operating: OperatingConditions
     pressure_window: PressureWindow
-    target_bottomhole_pressure_pa: float | None = None
-    depth_step_m: float = 50.0
+    target_bottomhole_pressure_pa: float | None = Field(
+        default=None,
+        description="Optional target BHP used for required surface backpressure, Pa.",
+    )
+    depth_step_m: float = Field(default=50.0, description="Profile sampling interval, m.")
 
 
 class ScenarioRead(BaseModel):
@@ -32,4 +39,4 @@ class ScenarioRead(BaseModel):
     name: str
     created_by: str
     created_at: datetime | None = None
-    inputs: dict
+    inputs: dict = Field(description="Persisted HydraulicsCase fields in SI units.")

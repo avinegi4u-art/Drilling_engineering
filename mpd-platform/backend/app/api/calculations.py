@@ -1,10 +1,15 @@
-"""Calculation run endpoints."""
+"""Calculation run endpoints.
+
+Calculations call ``mpd_engine.services.calculation_service.run_hydraulics``
+synchronously. This module does not re-implement friction, hydrostatic, ECD,
+or pressure-window equations.
+"""
 
 from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from mpd_engine.constants import CALCULATION_VERSION, VERSION_1_ASSUMPTIONS
 from mpd_engine.models.drillstring import Drillstring
 from mpd_engine.models.fluids import FluidProperties
@@ -16,6 +21,7 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.errors import conflict, not_found, unprocessable
 from app.db import repositories
 from app.schemas.calculations import CalculateRequest, ResultRead, RunRead
 
@@ -49,7 +55,7 @@ def calculate(
     request = payload or CalculateRequest()
     scenario = repositories.get_scenario(session, scenario_id)
     if scenario is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Scenario not found")
+        not_found("Scenario")
     run = repositories.add_run(
         session,
         scenario=scenario,
@@ -66,7 +72,7 @@ def calculate(
         repositories.fail_run(session, run, str(exc))
         session.commit()
         logger.exception("Calculation failed for run %s", run.id)
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        unprocessable("INVALID_INPUT", str(exc))
     repositories.complete_run(session, run, result_json=result.model_dump(mode="json"))
     session.commit()
     logger.info("Completed run %s version %s", run.id, result.calculation_version)
@@ -105,7 +111,7 @@ def get_run(run_id: str, session: Session = Depends(get_db)) -> RunRead:
     """Return calculation-run metadata."""
     run = repositories.get_run(session, run_id)
     if run is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Run not found")
+        not_found("Run")
     return RunRead(
         id=run.id,
         scenario_id=run.scenario_id,
@@ -123,12 +129,9 @@ def get_results(run_id: str, session: Session = Depends(get_db)) -> ResultRead:
     """Return persisted summary, profile, and warnings."""
     run = repositories.get_run(session, run_id)
     if run is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Run not found")
+        not_found("Run")
     if run.result is None:
-        raise HTTPException(
-            status.HTTP_409_CONFLICT,
-            detail=run.error_message or "Run has no result",
-        )
+        conflict(run.error_message or "Run has no result")
     return ResultRead(
         run_id=run.id,
         status=run.status,

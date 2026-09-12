@@ -1,1 +1,1 @@
-"""Application configuration. Implemented in Phase 4."""
+"""Application configuration, database sessions, logging, and HTTP errors."""

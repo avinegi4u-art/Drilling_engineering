@@ -124,7 +124,9 @@ class CalculationResultRow(Base):
     __tablename__ = "calculation_results"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
-    run_id: Mapped[str] = mapped_column(ForeignKey("calculation_runs.id"), nullable=False, unique=True)
+    run_id: Mapped[str] = mapped_column(
+        ForeignKey("calculation_runs.id"), nullable=False, unique=True
+    )
     summary_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     profile_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)
     warnings_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)

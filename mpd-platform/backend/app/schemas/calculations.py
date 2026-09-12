@@ -1,4 +1,8 @@
-"""Calculation request and response schemas."""
+"""Calculation request and response schemas.
+
+Results are produced by ``mpd_engine.services.calculation_service.run_hydraulics``.
+The API stores and returns those payloads; it does not recompute hydraulics here.
+"""
 
 from __future__ import annotations
 
@@ -11,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class CalculateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    created_by: str = Field(default="engineer")
+    created_by: str = Field(default="engineer", description="Audit label. Version 1 has no auth.")
 
 
 class RunRead(BaseModel):
@@ -19,7 +23,7 @@ class RunRead(BaseModel):
 
     id: str
     scenario_id: str
-    status: str
+    status: str = Field(description="pending, completed, or failed.")
     calculation_version: str
     created_by: str
     created_at: datetime | None = None

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from mpd_engine.models.well import Well as DomainWell
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.errors import not_found, unprocessable
 from app.db import repositories
 from app.schemas.wells import WellCreate, WellRead
 
@@ -25,12 +26,9 @@ def _domain_well(payload: WellCreate) -> DomainWell:
             sections=payload.sections,
         )
     if payload.td_m is None or payload.hole_id_m is None:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=(
-                "Provide td_m and hole_id_m for a vertical well, or supply trajectory "
-                "and sections."
-            ),
+        unprocessable(
+            "INVALID_GEOMETRY",
+            "Provide td_m and hole_id_m for a vertical well, or supply trajectory and sections.",
         )
     try:
         return DomainWell.vertical(
@@ -41,7 +39,7 @@ def _domain_well(payload: WellCreate) -> DomainWell:
             casing_id_m=payload.casing_id_m,
         )
     except (ValueError, ValidationError) as exc:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        unprocessable("INVALID_GEOMETRY", str(exc))
 
 
 @router.post("/wells", response_model=WellRead, status_code=status.HTTP_201_CREATED)
@@ -88,7 +86,7 @@ def get_well(well_id: str, session: Session = Depends(get_db)) -> WellRead:
     """Return one well by id."""
     record = repositories.get_well(session, well_id)
     if record is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Well not found")
+        not_found("Well")
     return WellRead(
         id=record.id,
         name=record.name,

@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from mpd_engine.models.well import Well as DomainWell
 from mpd_engine.services.calculation_service import HydraulicsCase
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.errors import not_found, unprocessable
 from app.db import repositories
 from app.schemas.scenarios import ScenarioCreate, ScenarioRead
 
@@ -31,7 +32,7 @@ def create_scenario(
     """Attach a hydraulics scenario to a well. Inputs are validated by the engine."""
     well_row = repositories.get_well(session, well_id)
     if well_row is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Well not found")
+        not_found("Well")
     try:
         domain_well = DomainWell.model_validate(well_row.well_json)
         HydraulicsCase(
@@ -44,7 +45,7 @@ def create_scenario(
             depth_step_m=payload.depth_step_m,
         )
     except (ValueError, ValidationError) as exc:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        unprocessable("INVALID_INPUT", str(exc))
 
     inputs = {
         "well": well_row.well_json,
@@ -80,7 +81,7 @@ def create_scenario(
 def list_well_scenarios(well_id: str, session: Session = Depends(get_db)) -> list[ScenarioRead]:
     well_row = repositories.get_well(session, well_id)
     if well_row is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Well not found")
+        not_found("Well")
     return [
         ScenarioRead(
             id=item.id,
@@ -99,7 +100,7 @@ def get_scenario(scenario_id: str, session: Session = Depends(get_db)) -> Scenar
     """Return one scenario including stored inputs."""
     record = repositories.get_scenario(session, scenario_id)
     if record is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Scenario not found")
+        not_found("Scenario")
     return ScenarioRead(
         id=record.id,
         well_id=record.well_id,

@@ -8,6 +8,7 @@ Create Date: 2026-09-12
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision: str = "0001_initial"
@@ -68,7 +69,12 @@ def upgrade() -> None:
     op.create_table(
         "calculation_runs",
         sa.Column("id", sa.String(length=36), primary_key=True),
-        sa.Column("scenario_id", sa.String(length=36), sa.ForeignKey("scenarios.id"), nullable=False),
+        sa.Column(
+            "scenario_id",
+            sa.String(length=36),
+            sa.ForeignKey("scenarios.id"),
+            nullable=False,
+        ),
         sa.Column("status", sa.String(length=32), nullable=False),
         sa.Column("calculation_version", sa.String(length=100), nullable=False),
         sa.Column("created_by", sa.String(length=100), nullable=False),

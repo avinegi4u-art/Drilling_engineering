@@ -20,6 +20,11 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mpd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mpd}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-mpd}
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-mpd}:${POSTGRES_PASSWORD:-mpd}@postgres:5432/${POSTGRES_DB:-mpd}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:

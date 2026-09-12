@@ -1,13 +1,17 @@
-"""Alembic environment. DATABASE_URL overrides the ini file URL."""
+"""Alembic environment.
+
+The SQLAlchemy URL comes from ``app.core.config.Settings`` so both
+``DATABASE_URL`` and ``POSTGRES_*`` environment variables work.
+"""
 
 from __future__ import annotations
 
-import os
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
+from app.core.config import Settings
 from app.core.database import Base
 from app.db import models as _models  # noqa: F401
 
@@ -15,9 +19,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-database_url = os.environ.get("DATABASE_URL")
-if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+config.set_main_option("sqlalchemy.url", Settings().sqlalchemy_database_url)
 
 target_metadata = Base.metadata
 
