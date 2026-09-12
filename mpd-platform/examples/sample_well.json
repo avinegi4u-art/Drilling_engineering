@@ -1,0 +1,64 @@
+{
+  "description": "Example vertical well for development and tests. Invented sample data only — not field measurements.",
+  "units_note": "Domain models store SI (m, Pa, kg/m3, m3/s). Source-unit notes are documentation only.",
+  "well": {
+    "name": "EXAMPLE-1",
+    "td_m": 3000.0,
+    "annular_section_type": "open_hole",
+    "hole_id_m": 0.31115,
+    "hole_id_source": "12.25 in"
+  },
+  "drillstring": {
+    "component_type": "drillpipe",
+    "od_m": 0.127,
+    "id_m": 0.1086104,
+    "length_m": 3000.0,
+    "od_source": "5.0 in",
+    "id_source": "4.276 in"
+  },
+  "fluid": {
+    "mud_density_kg_m3": 1200.0,
+    "plastic_viscosity_pa_s": 0.02,
+    "yield_stress_pa": 9.576,
+    "temperature_c": 50.0,
+    "rheology_model": "bingham_plastic"
+  },
+  "fluid_source_notes": {
+    "plastic_viscosity": "20 cP"
+  },
+  "operating_conditions": {
+    "drilling": {
+      "flow_rate_m3_s": 0.03333333333333333,
+      "surface_backpressure_pa": 0.0,
+      "operating_mode": "drilling"
+    },
+    "pump_off": {
+      "flow_rate_m3_s": 0.0,
+      "surface_backpressure_pa": 1500000.0,
+      "operating_mode": "pump_off"
+    }
+  },
+  "operating_source_notes": {
+    "drilling_flow_rate": "2000 L/min"
+  },
+  "pressure_window": [
+    {
+      "tvd_m": 100.0,
+      "pore_pressure_pa": 1200000.0,
+      "collapse_pressure_pa": 1300000.0,
+      "fracture_pressure_pa": 1800000.0
+    },
+    {
+      "tvd_m": 1000.0,
+      "pore_pressure_pa": 12000000.0,
+      "collapse_pressure_pa": 13000000.0,
+      "fracture_pressure_pa": 18000000.0
+    },
+    {
+      "tvd_m": 3000.0,
+      "pore_pressure_pa": 36000000.0,
+      "collapse_pressure_pa": 38000000.0,
+      "fracture_pressure_pa": 54000000.0
+    }
+  ]
+}
