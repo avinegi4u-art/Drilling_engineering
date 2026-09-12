@@ -97,10 +97,10 @@ st.caption(
 profile = results["profile"]
 c1, c2 = st.columns(2)
 with c1:
-    st.plotly_chart(pressure_profile_figure(profile), use_container_width=True)
+    st.plotly_chart(pressure_profile_figure(profile), width="stretch")
 with c2:
-    st.plotly_chart(friction_profile_figure(profile), use_container_width=True)
-st.plotly_chart(ecd_figure(profile), use_container_width=True)
+    st.plotly_chart(friction_profile_figure(profile), width="stretch")
+st.plotly_chart(ecd_figure(profile), width="stretch")
 
 st.subheader("Warnings")
 show_warnings(results["warnings"])

@@ -41,7 +41,7 @@ if connection:
         "SBP limit exceeded",
         "Yes" if connection.get("sbp_limit_exceeded") else "No",
     )
-    st.plotly_chart(connection_comparison_figure(connection), use_container_width=True)
+    st.plotly_chart(connection_comparison_figure(connection), width="stretch")
     if connection.get("sbp_limit_exceeded"):
         st.error(
             "Required connection SBP exceeds the configured review limit. "

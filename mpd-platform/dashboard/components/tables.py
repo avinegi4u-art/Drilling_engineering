@@ -43,7 +43,7 @@ def show_warnings(warnings: list[dict[str, Any]]) -> None:
             }
         )
     st.warning("Warnings are engineering-review notices, not operational commands.")
-    st.dataframe(pd.DataFrame(rows), use_container_width=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch")
 
 
 def show_profile(profile: list[dict[str, Any]]) -> None:
@@ -52,4 +52,4 @@ def show_profile(profile: list[dict[str, Any]]) -> None:
         frame["annular_pressure_kpa"] = frame["annular_pressure_pa"].map(pa_to_kpa)
         frame["hydrostatic_kpa"] = frame["hydrostatic_pressure_pa"].map(pa_to_kpa)
         frame["friction_kpa"] = frame["annular_friction_to_surface_pa"].map(pa_to_kpa)
-    st.dataframe(frame, use_container_width=True)
+    st.dataframe(frame, width="stretch")

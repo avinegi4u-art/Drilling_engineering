@@ -21,7 +21,7 @@ if not results:
     st.stop()
 
 show_assumptions(results.get("assumptions"))
-st.plotly_chart(pressure_window_figure(results["profile"]), use_container_width=True)
+st.plotly_chart(pressure_window_figure(results["profile"]), width="stretch")
 st.metric("Window status at TD", results["summary"]["window_status"])
 st.subheader("Window warnings")
 show_warnings(
